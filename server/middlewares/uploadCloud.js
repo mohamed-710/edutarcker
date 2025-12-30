@@ -2,7 +2,7 @@ import multer, { diskStorage } from 'multer';
 import appError from '../utils/app_error.js';
 const uploadFileCloud = () => {
 
-    const photostorage = diskStorage({}); //save file in system "temp"
+    const photostorage = diskStorage({}); 
     const fileFilter = (req, file, cb) => {
         if (!file.mimetype.startsWith('image/')) {
             return cb(

@@ -1,8 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-
-
+import sequelize from './config/db_config.js';
+import { syncTables } from './config/db_config.js';
 dotenv.config();
 
 
@@ -11,10 +11,6 @@ const app =express();
 app.use(express.json());
 app.use(cookieParser());
 // app.use('/images', express.static('uploads'));
-
-
-
-
 // app.all('*',(req,res,next)=>{
 //     return res.status(404).json({success:httpStatusText.FAIL,message:'Page not found'});
 // });
@@ -29,7 +25,16 @@ app.use((error,req,res,next)=>{
 })
 
 const port=process.env.PORT
-app.listen(port,()=>{
-    console.log(`run on port ${port}`);
-    
-})
+
+sequelize.authenticate()
+  .then(async () => {
+    console.log('Database connection established successfully.');
+    await syncTables();
+    console.log('Tables synchronized successfully.');
+    app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+    });
+  })
+  .catch(err => {
+    console.error('Unable to connect to the database:', err);
+  });
