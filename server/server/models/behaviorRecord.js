@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db_config.js';
 
-
+export default (sequelize) => {
   const BehaviorRecord = sequelize.define('BehaviorRecord', {
     id: {
       type: DataTypes.UUID,
@@ -113,4 +112,6 @@ import sequelize from '../config/db_config.js';
       as: 'reportedBy'
     });
   };
-export default BehaviorRecord;
+
+  return BehaviorRecord;
+};

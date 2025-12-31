@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db_config.js';
 
-
+export default (sequelize) => {
   const Attendance = sequelize.define('Attendance', {
     id: {
       type: DataTypes.UUID,
@@ -82,4 +81,5 @@ import sequelize from '../config/db_config.js';
     });
   };
 
-export default Attendance;
+  return Attendance;
+};

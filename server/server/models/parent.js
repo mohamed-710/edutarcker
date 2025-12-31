@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db_config.js';
 
+export default (sequelize) => {
   const Parent = sequelize.define('Parent', {
     id: {
       type: DataTypes.UUID,
@@ -101,4 +101,6 @@ import sequelize from '../config/db_config.js';
       as: 'communications'
     });
   };
-export default Parent;
+
+  return Parent;
+};

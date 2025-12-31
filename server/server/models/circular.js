@@ -1,7 +1,6 @@
 import { DataTypes ,Sequelize} from 'sequelize';
-import sequelize from '../config/db_config.js';
 
-
+export default (sequelize) => {
   const Circular = sequelize.define('Circular', {
     id: {
       type: DataTypes.UUID,
@@ -97,4 +96,5 @@ import sequelize from '../config/db_config.js';
     });
   };
 
-export default Circular;
+  return Circular;
+};

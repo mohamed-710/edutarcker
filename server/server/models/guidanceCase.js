@@ -1,7 +1,6 @@
 import { DataTypes,Sequelize } from 'sequelize';
-import sequelize from '../config/db_config.js';
 
-
+export default (sequelize) => {
   const GuidanceCase = sequelize.define('GuidanceCase', {
     id: {
       type: DataTypes.UUID,
@@ -146,4 +145,5 @@ import sequelize from '../config/db_config.js';
     });
   };
 
-export default GuidanceCase;
+  return GuidanceCase;
+};

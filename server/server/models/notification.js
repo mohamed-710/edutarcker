@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize';
 
-import sequelize from '../config/db_config.js';
-
+export default (sequelize) => {
   const Notification = sequelize.define('Notification', {
     id: {
       type: DataTypes.UUID,
@@ -89,4 +88,5 @@ import sequelize from '../config/db_config.js';
     });
   };
 
-export default Notification;
+  return Notification;
+};

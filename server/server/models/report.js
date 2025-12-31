@@ -1,7 +1,7 @@
-import { DataTypes,Sequelize } from 'sequelize';
-import sequelize from '../config/db_config.js';
+import { DataTypes } from 'sequelize';
 
-const Report = sequelize.define('Report', {
+export default (sequelize) => {
+    const Report = sequelize.define('Report', {
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
@@ -143,4 +143,5 @@ const Report = sequelize.define('Report', {
         });
     };
 
-export default Report;
+    return Report;
+};

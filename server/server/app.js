@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import sequelize from './config/db_config.js';
 import { syncTables } from './config/db_config.js';
-import authRoutes from './routes/authRoutes.js';
 dotenv.config();
 
 
@@ -11,13 +10,10 @@ const app =express();
 
 app.use(express.json());
 app.use(cookieParser());
-
 // app.use('/images', express.static('uploads'));
 // app.all('*',(req,res,next)=>{
 //     return res.status(404).json({success:httpStatusText.FAIL,message:'Page not found'});
 // });
-
-app.use('/api/auth',authRoutes)
 
 //global error handler 
 app.use((error,req,res,next)=>{
@@ -27,7 +23,6 @@ app.use((error,req,res,next)=>{
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
 })
-
 
 const port=process.env.PORT
 

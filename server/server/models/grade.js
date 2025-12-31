@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db_config.js';
 
+export default (sequelize) => {
   const Grade = sequelize.define('Grade', {
     id: {
       type: DataTypes.UUID,
@@ -122,4 +122,6 @@ import sequelize from '../config/db_config.js';
       as: 'recordedBy'
     });
   };
-export default Grade;
+
+  return Grade;
+};

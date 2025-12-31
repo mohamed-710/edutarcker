@@ -1,7 +1,7 @@
 import { DataTypes,Sequelize } from 'sequelize';
-import sequelize from '../config/db_config.js';
 
-const Student = sequelize.define('Student', {
+export default (sequelize) => {
+    const Student = sequelize.define('Student', {
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
@@ -136,4 +136,6 @@ const Student = sequelize.define('Student', {
             as: 'guidanceCases'
         });
     };
-export default Student;
+
+    return Student;
+};
