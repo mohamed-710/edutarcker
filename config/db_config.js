@@ -13,7 +13,7 @@ const sequelize = new Sequelize(
   logging:false,
  dialectOptions: {
       ssl: {
-        require: true,
+        require: false,
         rejectUnauthorized: false
       }
     },
@@ -23,7 +23,7 @@ const sequelize = new Sequelize(
 
 
 export const syncTables = async () => {
-  await sequelize.sync()
+  await sequelize.sync({alter:false})
 }
 
 export default sequelize;
