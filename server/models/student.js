@@ -1,5 +1,6 @@
 import { DataTypes,Sequelize } from 'sequelize';
 import sequelize from '../config/db_config.js';
+import Joi from 'joi';
 
 const Student = sequelize.define('Student', {
         id: {
@@ -136,4 +137,48 @@ const Student = sequelize.define('Student', {
             as: 'guidanceCases'
         });
     };
+
+
+const validateCreateStudent = (obj) => {
+    const schema = Joi.object({
+        name: Joi.string().min(3).max(100).required().messages({
+            'string.empty': 'اسم الطالب مطلوب',
+            'any.required': 'يجب إدخال اسم الطالب'
+        }),
+        grade: Joi.string().required(),
+        class: Joi.string().required(),
+        dateOfBirth: Joi.date().iso().required(),
+        nationality: Joi.string().required(),
+        address: Joi.string().min(5).required(),
+        parentPhone: Joi.string().pattern(/^[0-9]+$/).min(10).required(),
+        parentEmail: Joi.string().email().required(),
+        
+        bloodType: Joi.string().valid('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-').required().messages({
+            'any.only': 'فصيلة الدم يجب أن تكون واحدة من الفصائل المعروفة',
+            'any.required': 'فصيلة الدم مطلوبة للجيل الجديد من السجلات'
+        }),
+        allergies: Joi.array().items(Joi.string()).optional().default([]),
+        conditions: Joi.array().items(Joi.string()).optional().default([])
+    });
+
+    return schema.validate(obj);
+};
+const validateUpdateStudent = (obj) => {
+    const schema = Joi.object({
+        name: Joi.string().min(3).max(100).optional(),
+        grade: Joi.string().optional(),
+        class: Joi.string().optional(),
+        dateOfBirth: Joi.date().iso().optional(),
+        nationality: Joi.string().optional(),
+        address: Joi.string().optional(),
+        status: Joi.string().valid('active', 'inactive', 'graduated', 'transferred').optional(),
+        bloodType: Joi.string().valid('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-').optional(),
+        allergies: Joi.array().items(Joi.string()).optional(),
+        conditions: Joi.array().items(Joi.string()).optional(),
+        attendanceRate: Joi.number().min(0).max(100).optional(),
+        behaviorScore: Joi.number().integer().min(0).max(100).optional()
+    });
+    return schema.validate(obj);
+};
+export {validateCreateStudent,validateUpdateStudent};
 export default Student;

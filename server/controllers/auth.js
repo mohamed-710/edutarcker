@@ -1,18 +1,34 @@
 import bcrypt from 'bcryptjs';
-import { Op } from 'sequelize';
 import { asyncWrapper } from '../middlewares/asyncWrapper.js';
+import { generateJwtAndSetcookie } from '../utils/genrate_jwt_cookie.js';
 import appError from '../utils/app_error.js';
 import httpStatusText from '../utils/httpStatusText.js';
-import { validateRegisterUser, validateLoginUser, validateRegisterAdmin } from '../models/user.js';
+import { validateLoginUser, validateRegisterAdmin } from '../models/user.js';
 import { models } from '../utils/db_instance.js';
-const{User}=models; 
+const { User } = models;
 /**
  * @desc    Bootstrap Admin (ONE TIME)
  * @method  POST
  * @route   POST /api/auth/register-admin
  * @access  public (temporary)
  */
+const ENABLE_ADMIN_REGISTER = process.env.ENABLE_ADMIN_REGISTER === 'true'; //false
+
+
 const registerAdmin = asyncWrapper(async (req, res, next) => {
+  
+  if (!ENABLE_ADMIN_REGISTER) {
+    return next(
+      appError.create(
+        'Admin registration is disabled',
+        403,
+        httpStatusText.FAIL
+      )
+    );
+  }
+
+
+
   const adminExists = await User.findOne({ where: { role: 'admin' } });
   if (adminExists) {
     return next(
@@ -77,10 +93,20 @@ const loginUser = asyncWrapper(async (req, res, next) => {
   if (!isMatch) {
     return next(appError.create("invalid password", 400, httpStatusText.FAIL));
   }
+  await user.update({
+    lastLogin: new Date()
+  });
   const token = generateJwtAndSetcookie(res, user.id, user.role);
   res.status(200).json({
     status: httpStatusText.SUCCESS,
-    message: "user logged in successfully",
+    message: "تم تسجيل الدخول بنجاح",
+    data:{
+      name:user.name,
+      id:user.id,
+      email:user.email,
+      role:user.role,
+      avatar:user.avatar.secure_url
+    },
     token
   });
 });
@@ -101,7 +127,7 @@ const logout = asyncWrapper(async (req, res, next) => {
 
   res.status(200).json({
     status: httpStatusText.SUCCESS,
-    message: 'Logged out successfully'
+    message: 'تم تسجيل الخروج بنجاح'
   });
 });
 export {

@@ -4,6 +4,8 @@ import cookieParser from 'cookie-parser';
 import sequelize from './config/db_config.js';
 import { syncTables } from './config/db_config.js';
 import authRoutes from './routes/authRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js'
+import studentRouter from './routes/studentRoutes.js'
 dotenv.config();
 
 
@@ -18,7 +20,8 @@ app.use(cookieParser());
 // });
 
 app.use('/api/auth',authRoutes)
-
+app.use('/api/dashboard',dashboardRoutes)
+app.use('/api/students', studentRouter);
 //global error handler 
 app.use((error,req,res,next)=>{
     res.status(error.statusCode || 500).json({

@@ -12,6 +12,7 @@ import Communication from '../models/communication.js';
 import Notification from '../models/notification.js';
 import Circular from '../models/circular.js';
 import Report from '../models/report.js';
+import sequelize from '../config/db_config.js';
 
 
 const models = {
@@ -37,4 +38,4 @@ Object.values(models).forEach(model => {
   }
 });
 
-export { models };
+export { models ,sequelize };
