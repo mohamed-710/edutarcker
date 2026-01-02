@@ -88,7 +88,7 @@ export const validateRecordAttendance = (obj) => {
         }),
 records: Joi.array().items(
             Joi.object({
-                studentId: Joi.string().uuid().required(),
+                studentId: Joi.string().required(),
                 status: Joi.string().valid('present', 'absent', 'late', 'excused').required(),
                 checkInTime: Joi.string().regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/).optional(),
                 checkOutTime: Joi.string().regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/).optional(),

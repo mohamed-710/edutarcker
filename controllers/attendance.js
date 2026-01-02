@@ -35,7 +35,7 @@ const getAttendance = asyncWrapper(async (req, res, next) => {
         .filter(record => record.student) 
         .map(record => ({
             id: record.id,
-            studentId: record.student.id,
+            studentId: record.student.studentId,
             studentName: record.student.name,
             date: record.date,
             status: record.status,
@@ -47,51 +47,51 @@ const getAttendance = asyncWrapper(async (req, res, next) => {
     res.status(200).json({ success: true, data: formattedData });
 });
 
-
 const recordAttendance = asyncWrapper(async (req, res, next) => {
-    const { error } = validateRecordAttendance(req.body);
-    if (error) return next(appError.create(error.details[0].message, 400, httpStatusText.FAIL));
+  const { error, value } = validateRecordAttendance(req.body);
+  if (error) return next(appError.create(error.details[0].message, 400, httpStatusText.FAIL));
 
-    const { date, records } = req.body;
-    const transaction = await sequelize.transaction();
+  const { date, records } = value;
 
-    try {
-        const studentIds = records.map(r => r.studentId);
-        
-        await Attendance.destroy({
-            where: { date, studentId: { [Op.in]: studentIds } },
-            transaction
-        });
+  await sequelize.transaction(async (t) => {
+    const students = await Student.findAll({
+      where: { studentId: { [Op.in]: records.map(r => r.studentId) } },
+      attributes: ['id', 'studentId'], 
+      transaction: t
+    });
 
-        const attendanceData = records.map(r => ({
-            date,
-            studentId: r.studentId,
-            status: r.status,
-            checkInTime: r.checkInTime,
-            checkOutTime: r.checkOutTime,
-            notes: r.notes || r.reason || "",
-            parentNotified: r.parentNotified || false,
-            notifiedAt: r.parentNotified ? new Date() : null
-        }));
+    const idMap = Object.fromEntries(students.map(s => [s.studentId, s.id]));
 
-        await Attendance.bulkCreate(attendanceData, { transaction });
+    await Attendance.destroy({
+      where: { date, studentId: { [Op.in]: Object.values(idMap) } },
+      transaction: t
+    });
 
-        await transaction.commit();
+    await Attendance.bulkCreate(
+      records.map(r => ({
+        date,
+        studentId: idMap[r.studentId], 
+        status: r.status,
+        checkInTime: r.checkInTime,
+        checkOutTime: r.checkOutTime,
+        notes: r.notes ?? r.reason ?? null,
+        parentNotified: r.parentNotified ?? false,
+        notifiedAt: r.parentNotified ? new Date() : null
+      })).filter(r => r.studentId),
+      { transaction: t }
+    );
+  });
 
-        res.status(201).json({
-            success: true,
-            message: "تم تسجيل الحضور بنجاح",
-            data: {
-                totalRecorded: records.length,
-                present: records.filter(r => r.status === 'present').length,
-                absent: records.filter(r => r.status === 'absent').length,
-                late: records.filter(r => r.status === 'late').length
-            }
-        });
-    } catch (err) {
-        await transaction.rollback();
-        return next(appError.create(err.message, 500, httpStatusText.ERROR));
-    }
+  const stats = records.reduce((acc, r) => {
+    acc[r.status] = (acc[r.status] || 0) + 1;
+    return acc;
+  }, { present: 0, absent: 0, late: 0 });
+
+  res.status(201).json({
+    success: true,
+    message: "تم تسجيل الحضور بنجاح",
+    data: { totalRecorded: records.length, ...stats }
+  });
 });
 
 
