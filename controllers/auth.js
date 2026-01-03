@@ -16,7 +16,7 @@ const ENABLE_ADMIN_REGISTER = process.env.ENABLE_ADMIN_REGISTER === 'true'; //fa
 
 
 const registerAdmin = asyncWrapper(async (req, res, next) => {
-  
+
   if (!ENABLE_ADMIN_REGISTER) {
     return next(
       appError.create(
@@ -99,13 +99,15 @@ const loginUser = asyncWrapper(async (req, res, next) => {
   const token = generateJwtAndSetcookie(res, user.id, user.role);
   res.status(200).json({
     status: httpStatusText.SUCCESS,
-    message: "تم تسجيل الدخول بنجاح",
-    data:{
-      name:user.name,
-      id:user.id,
-      email:user.email,
-      role:user.role,
-      avatar:user.avatar.secure_url
+    data: {
+      user: {
+        name: user.name,
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar.secure_url
+      },
+
     },
     token
   });
@@ -126,7 +128,7 @@ const logout = asyncWrapper(async (req, res, next) => {
   });
 
   res.status(200).json({
-    status: httpStatusText.SUCCESS,
+    status: true,
     message: 'تم تسجيل الخروج بنجاح'
   });
 });

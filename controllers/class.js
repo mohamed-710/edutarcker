@@ -10,7 +10,7 @@ const { Class } = models;
  * @route   POST /api/classes
  */
 export const createClass = asyncWrapper(async (req, res, next) => {
-    const { grade, section, academicYear, name,room } = req.body;
+    const { grade, section, academicYear, name } = req.body;
 
 
     const existingClass = await Class.findOne({ 
@@ -30,7 +30,7 @@ export const createClass = asyncWrapper(async (req, res, next) => {
         section,
         name: name || `فصل ${grade} - ${section}`, 
         academicYear: academicYear || "2025-2026",
-        room
+        
     });
 
     res.status(201).json({ 
