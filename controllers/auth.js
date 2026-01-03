@@ -62,11 +62,11 @@ const registerAdmin = asyncWrapper(async (req, res, next) => {
   res.status(201).json({
     status: httpStatusText.SUCCESS,
     message: 'Admin created successfully',
-    data: {
+    user: {
       id: admin.id,
       name: admin.name,
       email: admin.email,
-      role: admin.role
+      role: admin.role,
     }
   });
 });

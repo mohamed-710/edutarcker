@@ -10,7 +10,7 @@ const User = sequelize.define('User', {
     },
     name: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     email: {
         type: DataTypes.STRING,
@@ -100,17 +100,7 @@ export const validateRegisterAdmin = (obj) => {
 
     return schema.validate(obj);
 };
-export const validateRegisterUser = (obj) => {
-    const schema = Joi.object({
-        name: Joi.string().min(3).max(50).required(),
-        email: Joi.string().email().required(),
-        password: Joi.string().min(6).required(),
-        phone: Joi.string().optional()
-    });
-
-    return schema.validate(obj);
-};
-
+ 
 export const validateLoginUser = (obj) => {
     const schema = Joi.object({
         email: Joi.string().email().required(),
