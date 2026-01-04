@@ -34,7 +34,7 @@ export const createClass = asyncWrapper(async (req, res, next) => {
     });
 
     res.status(201).json({ 
-        status: httpStatusText.SUCCESS, // استخدام httpStatusText هنا برضه
+        status: httpStatusText.SUCCESS,
         data: { class: newClass } 
     });
 });

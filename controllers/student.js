@@ -98,7 +98,7 @@ const getAllStudents = asyncWrapper(async (req, res, next) => {
  * @desc    Get single student details
  * @route   GET /api/students/:id
  */
-const getStudentById = asyncWrapper(async (req, res) => {
+const getStudentById = asyncWrapper(async (req, res,next) => {
     const { id } = req.params;
     if (!id) {
         return next(appError.create("معرف الطالب مطلوب", 400, httpStatusText.FAIL));
@@ -185,7 +185,7 @@ const createStudent = asyncWrapper(async (req, res, next) => {
 
         const [parent] = await Parent.findOrCreate({
             where: { fatherPhone: parentPhone },
-            defaults: { fatherEmail: parentEmail, fatherName: `والد ${name}` },
+            defaults: { fatherEmail: parentEmail, fatherNam },
             transaction
         });
 

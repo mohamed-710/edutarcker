@@ -149,7 +149,7 @@ const validateCreateStudent = (obj) => {
         class: Joi.string().required(),
         dateOfBirth: Joi.date().iso().required(),
         nationality: Joi.string().required(),
-        address: Joi.string().min(5).required(),
+        address: Joi.string().required(),
         parentPhone: Joi.string().pattern(/^[0-9]+$/).min(10).required(),
         parentEmail: Joi.string().email().required(),
         bloodType: Joi.string().valid('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-').required().messages({
