@@ -8,6 +8,7 @@ import dashboardRoutes from './routes/dashboardRoutes.js';
 import studentRouter from './routes/studentRoutes.js';
 import attendRoutes from './routes/atendanceRoutes.js';
 import behaviorRoutes from './routes/behaviorRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
 dotenv.config();
 
 
@@ -26,6 +27,7 @@ app.use('/api/dashboard',dashboardRoutes);
 app.use('/api/students', studentRouter);
 app.use('/api/attendance',attendRoutes);
 app.use('/api/behavior',behaviorRoutes);
+app.use('/api/reports',reportRoutes);
 //global error handler 
 app.use((error,req,res,next)=>{
     res.status(error.statusCode || 500).json({

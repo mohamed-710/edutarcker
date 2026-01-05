@@ -40,14 +40,14 @@ const Report = sequelize.define('Report', {
                 key: 'id'
             }
         },
-        createdById: {
-            type: DataTypes.UUID,
-            allowNull: false,
-            references: {
-                model: 'teachers',
-                key: 'id'
-            }
-        },
+   createdById: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: 'users', 
+            key: 'id'
+        }
+    },
         status: {
             type: DataTypes.ENUM('draft', 'pending', 'approved', 'rejected', 'published'),
             defaultValue: 'draft'
@@ -131,10 +131,10 @@ const Report = sequelize.define('Report', {
         });
 
         // Belongs to Teacher (created by)
-        Report.belongsTo(models.Teacher, {
-            foreignKey: 'createdById',
-            as: 'createdBy'
-        });
+    Report.belongsTo(models.User, {
+        foreignKey: 'createdById',
+        as: 'createdBy'
+    });
 
         // Belongs to User (approved by)
         Report.belongsTo(models.User, {

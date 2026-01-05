@@ -23,7 +23,7 @@ const sequelize = new Sequelize(
 
 
 export const syncTables = async () => {
-  await sequelize.sync({alter:false})
+  await sequelize.sync({force:false})
 }
 
 export default sequelize;

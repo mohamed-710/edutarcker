@@ -6,6 +6,7 @@ import { handleJWTError } from '../utils/jwt_error_handler.js';
 
 export const verifyToken = (req, res, next) => {
     const token = req.cookies.token
+    
     if (!token) {
         const error = AppError.create("unauthorized -no token provided", 401, httpStatusText.ERROR)
         return next(error);
@@ -16,8 +17,10 @@ export const verifyToken = (req, res, next) => {
             const error = AppError.create("unauthorized -invalid token", 401, httpStatusText.ERROR)
             return next(error);
         }
-        req.user= decoded;
-        next();
+req.user = {
+    id: decoded.userId,
+    role: decoded.role
+};        next();
     } catch (err) {
      handleJWTError(err,next);
     }
