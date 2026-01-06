@@ -1,13 +1,13 @@
 import { Op, fn, col, Sequelize } from 'sequelize';
-import PDFDocument from 'pdfkit';
 import sequelize from '../config/db_config.js';
 import { asyncWrapper } from '../middlewares/asyncWrapper.js';
 import { models } from '../utils/db_instance.js';
 import appError from '../utils/app_error.js';
 import httpStatusText from '../utils/httpStatusText.js';
-import { formatArabic } from '../utils/pdf_helper.js';
+const { Report, Attendance, BehaviorRecord, Student, Teacher, User,Class } = models;
+import puppeteer from 'puppeteer';
 import path from 'path';
-const { Report, Attendance, BehaviorRecord, Student, Teacher, User } = models;
+import { reportTemplate } from '../utils/pdfTemplates.js';
 
 /**
  * @desc    Create a new report with automated statistics aggregation within a transaction
@@ -167,44 +167,59 @@ const approveReport = asyncWrapper(async (req, res, next) => {
  */
 
 
-const exportReport = asyncWrapper(async (req, res, next) => {
-    const { id } = req.params;
 
-    const report = await Report.findByPk(id, {
-        include: [{ model: User, as: 'createdBy', attributes: ['name'] }]
+const exportReport = asyncWrapper(async (req, res, next) => {
+    const report = await Report.findByPk(req.params.id, {
+        include: [
+            { model: User, as: 'createdBy', attributes: ['name'] },
+            { model: Class, as: 'class', attributes: ['name', 'section'] }
+        ]
     });
 
-    if (!report) return next(appError.create('Report not found', 404, httpStatusText.FAIL));
+    if (!report)
+        return next(appError.create('Report not found', 404, httpStatusText.FAIL));
 
-    const doc = new PDFDocument({ margin: 50 });
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=report-${report.reportNumber}.pdf`);
+    const browser = await puppeteer.launch({
+        headless: 'new',
+        args: ['--no-sandbox']
+    });
 
-    doc.pipe(res);
+    const page = await browser.newPage();
 
-    const fontPath = 'fonts/Amiri-Regular.ttf';
-    doc.font(fontPath);
-    // ------------------------
+    const fontPath = `file://${path.resolve('fonts/Amiri-Regular.ttf')}`;
 
-    doc.fontSize(22).text(formatArabic("تقرير الأداء التعليمي"), { align: 'center' });
-    doc.moveDown();
+    const html = reportTemplate({
+        reportNumber: report.reportNumber,
+        title: report.title,
+        type: report.type,
+        grade: report.grade ?? '-',
+        createdAt: report.createdAt.toISOString().split('T')[0],
+        content: report.content,
+        summary: {
+            attendanceRate: report.summary?.attendanceRate ?? 0,
+            behaviorIncidents: report.summary?.behaviorIncidents ?? 0
+        },
+        createdBy: report.createdBy?.name ?? '-',
+        classInfo: report.class
+            ? `${report.class.name} (${report.class.section})`
+            : '-',
+        fontPath
+    });
 
-    doc.fontSize(14);
-    doc.text(`${formatArabic("رقم التقرير")}: ${report.reportNumber}`, { align: 'right' });
-    doc.text(`${formatArabic("العنوان")}: ${formatArabic(report.title)}`, { align: 'right' });
-    doc.text(`${formatArabic("بواسطة")}: ${formatArabic(report.createdBy?.name)}`, { align: 'right' });
+    await page.setContent(html, { waitUntil: 'networkidle0' });
 
-    doc.moveDown();
-    doc.text("--------------------------------------------------", { align: 'center' });
-    doc.moveDown();
+    const pdf = await page.pdf({ format: 'A4', printBackground: true });
 
-    doc.fontSize(16).text(formatArabic("الموجز الإحصائي"), { align: 'right', underline: true });
-    doc.moveDown(0.5);
-    doc.fontSize(14);
-    doc.text(`${formatArabic("نسبة الحضور المدرسية")}: ${report.summary.attendanceRate}%`, { align: 'right' });
-    doc.text(`${formatArabic("إجمالي عدد المخالفات السلوكية")}: ${report.summary.behaviorIncidents}`, { align: 'right' });
+    await browser.close();
 
-    doc.end();
+    res
+        .setHeader('Content-Type', 'application/pdf')
+        .setHeader(
+            'Content-Disposition',
+            `attachment; filename=report-${report.reportNumber}.pdf`
+        )
+        .send(pdf);
+
     await report.increment('downloadCount');
 });
 export {
